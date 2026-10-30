@@ -1,0 +1,1876 @@
+<!doctype html>
+<html lang="uz" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toshkent Metrosi - Interaktiv Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    <style id="themeStyles">
+      :root {
+        --bg-color: #070a12;
+        --border-color: rgba(139, 92, 246, 0.25);
+        --glass-bg: rgba(15, 23, 42, 0.78);
+        --glass-dark: rgba(7, 10, 18, 0.9);
+        --accent-color: #7c3aed;
+        --pattern-color: rgba(139, 92, 246, 0.12);
+      }
+
+      body {
+        background-color: var(--bg-color);
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
+      }
+
+      .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .glass-dark {
+        background: var(--glass-dark);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .station-node {
+        transition: all 0.25s ease-in-out;
+        cursor: pointer;
+      }
+      .station-node:hover {
+        transform: scale(1.4);
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+      }
+      .line-path {
+        transition: opacity 0.3s ease;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(
+          var(--pattern-color) 1px,
+          transparent 1px
+        );
+        background-size: 28px 28px;
+      }
+      .page-section {
+        display: none;
+      }
+      .page-section.active {
+        display: block;
+        animation: fadeIn 0.4s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="text-slate-100 font-sans antialiased bg-pattern min-h-screen flex flex-col justify-between"
+  >
+    <header class="sticky top-0 z-50 glass-dark shadow-2xl">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between"
+      >
+        <a
+          href="javascript:void(0)"
+          onclick="navigateTo('home')"
+          class="flex items-center gap-3 group"
+        >
+          <div
+            class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-violet-600 via-indigo-500 to-purple-400 p-0.5 shadow-lg group-hover:scale-105 transition-transform"
+          >
+            <div
+              class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center"
+            >
+              <i
+                class="fa-solid font-black text-2xl text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-indigo-300"
+                >M</i
+              >
+            </div>
+          </div>
+          <div>
+            <span
+              class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-200 bg-clip-text text-transparent block"
+              >TOSHKENT METROSI</span
+            >
+            <span
+              class="text-xs text-violet-400 font-medium tracking-wider uppercase block"
+              data-i18n="portal_subtitle"
+              >Rasmiy Portal</span
+            >
+          </div>
+        </a>
+
+        <nav
+          class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate-300"
+        >
+          <button
+            onclick="navigateTo('home')"
+            class="nav-btn px-3 py-2 rounded-xl text-violet-400 font-semibold transition-colors"
+            data-page="home"
+            data-i18n="nav_home"
+          >
+            Bosh sahifa
+          </button>
+          <button
+            onclick="navigateTo('map')"
+            class="nav-btn px-3 py-2 rounded-xl hover:text-violet-400 transition-colors"
+            data-page="map"
+            data-i18n="nav_map"
+          >
+            Interaktiv Xarita
+          </button>
+          <button
+            onclick="navigateTo('lines')"
+            class="nav-btn px-3 py-2 rounded-xl hover:text-violet-400 transition-colors"
+            data-page="lines"
+            data-i18n="nav_lines"
+          >
+            Yo'nalishlar & Jadval
+          </button>
+          <button
+            onclick="navigateTo('tariffs')"
+            class="nav-btn px-3 py-2 rounded-xl hover:text-violet-400 transition-colors"
+            data-page="tariffs"
+            data-i18n="nav_tariffs"
+          >
+            Tariflar & To'lov
+          </button>
+          <button
+            onclick="navigateTo('route')"
+            class="nav-btn px-3 py-2 rounded-xl hover:text-violet-400 transition-colors"
+            data-page="route"
+            data-i18n="nav_route"
+          >
+            Marshrut Hisoblagich
+          </button>
+        </nav>
+
+        <div class="hidden sm:flex items-center gap-3">
+          <div class="relative">
+            <select
+              onchange="changeTheme(this.value)"
+              class="bg-slate-900 text-xs font-semibold text-slate-200 border border-violet-500/30 rounded-xl py-2 px-3 focus:outline-none cursor-pointer"
+            >
+              <option value="violet">🔮 BlueViolet (Default)</option>
+              <option value="cyberpunk">🌌 Cyberpunk Neon Magenta</option>
+              <option value="amber">🔥 Amber Gold / Sunset</option>
+              <option value="ice">🧊 Midnight Ice / Aqua</option>
+              <option value="ruby">🌋 Dark Ruby / Crimson</option>
+              <option value="obsidian">🌑 Obsidian & Neon Blue</option>
+              <option value="emerald">🌲 Emerald Midnight</option>
+              <option value="cyan">🌌 Deep Space Cyan</option>
+              <option value="purple">🌆 Royal Velvet Purple</option>
+            </select>
+          </div>
+
+          <div
+            class="inline-flex p-1 bg-slate-900/80 rounded-xl border border-violet-500/30 text-xs font-semibold"
+          >
+            <button
+              id="lang-uz"
+              onclick="changeLanguage('uz')"
+              class="lang-btn px-2.5 py-1 rounded-lg bg-violet-600 text-white shadow-sm"
+            >
+              UZ
+            </button>
+            <button
+              id="lang-ru"
+              onclick="changeLanguage('ru')"
+              class="lang-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+            >
+              RU
+            </button>
+            <button
+              id="lang-en"
+              onclick="changeLanguage('en')"
+              class="lang-btn px-2.5 py-1 rounded-lg text-slate-400 hover:text-white transition-colors"
+            >
+              EN
+            </button>
+          </div>
+
+          <button
+            onclick="navigateTo('route')"
+            class="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-lg transition-all flex items-center gap-2"
+          >
+            <i class="fa-solid fa-route"></i>
+            <span data-i18n="btn_plan_route">Marshrut</span>
+          </button>
+        </div>
+
+        <button
+          onclick="toggleMobileMenu()"
+          class="lg:hidden p-2 rounded-xl text-slate-400 hover:text-white bg-slate-900 border border-violet-500/20"
+        >
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <div
+        id="mobileMenu"
+        class="hidden lg:hidden border-t border-violet-500/20 bg-slate-950/95 px-4 pt-4 pb-6 space-y-3"
+      >
+        <button
+          onclick="
+            navigateTo('home');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 text-slate-200 hover:text-violet-400"
+          data-i18n="nav_home"
+        >
+          Bosh sahifa
+        </button>
+        <button
+          onclick="
+            navigateTo('map');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 text-slate-200 hover:text-violet-400"
+          data-i18n="nav_map"
+        >
+          Interaktiv Xarita
+        </button>
+        <button
+          onclick="
+            navigateTo('lines');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 text-slate-200 hover:text-violet-400"
+          data-i18n="nav_lines"
+        >
+          Yo'nalishlar & Jadval
+        </button>
+        <button
+          onclick="
+            navigateTo('tariffs');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 text-slate-200 hover:text-violet-400"
+          data-i18n="nav_tariffs"
+        >
+          Tariflar & To'lov
+        </button>
+        <button
+          onclick="
+            navigateTo('route');
+            toggleMobileMenu();
+          "
+          class="block w-full text-left py-2 text-slate-200 hover:text-violet-400"
+          data-i18n="nav_route"
+        >
+          Marshrut Hisoblagich
+        </button>
+
+        <div class="pt-3 border-t border-slate-800 space-y-2">
+          <p class="text-xs text-slate-400">Fon mavzusini tanlang:</p>
+          <select
+            onchange="changeTheme(this.value)"
+            class="w-full bg-slate-900 text-xs text-slate-200 border border-violet-500/30 rounded-xl py-2 px-3"
+          >
+            <option value="violet">🔮 BlueViolet</option>
+            <option value="cyberpunk">🌌 Cyberpunk Neon</option>
+            <option value="amber">🔥 Amber Gold</option>
+            <option value="ice">🧊 Midnight Ice</option>
+            <option value="ruby">VOL Dark Ruby</option>
+            <option value="obsidian">🌑 Obsidian Blue</option>
+            <option value="emerald">🌲 Emerald Midnight</option>
+            <option value="cyan">🌌 Deep Space Cyan</option>
+            <option value="purple">🌆 Royal Velvet</option>
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow">
+      <section id="page-home" class="page-section active pt-12 pb-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+          <div class="grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+              <div
+                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-400 text-xs font-semibold uppercase tracking-wider"
+              >
+                <i class="fa-solid fa-bolt text-indigo-400"></i>
+                <span data-i18n="hero_badge"
+                  >Tezkor, Xavfsiz va Qulay Transport</span
+                >
+              </div>
+              <h1
+                class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight"
+              >
+                Toshkent Metrosi <br />
+                <span
+                  class="bg-gradient-to-r from-violet-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent"
+                  data-i18n="hero_title"
+                  >Poytaxtimizning Asosiy Arteriyasi</span
+                >
+              </h1>
+              <p
+                class="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+                data-i18n="hero_desc"
+              >
+                Yer osti va yer usti halqa metro tarmoqlari bo'ylab qulay
+                sayohat qiling. Eng maqbul marshrutlarni aniqlang hamda
+                zamonaviy to'lov usullaridan foydalaning.
+              </p>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4">
+                <div class="glass-card p-4 rounded-2xl text-left">
+                  <p class="text-2xl font-extrabold text-violet-400">50+</p>
+                  <p class="text-xs text-slate-400" data-i18n="stat_stations">
+                    Bekatlar Soni
+                  </p>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-left">
+                  <p class="text-2xl font-extrabold text-indigo-400">70+ km</p>
+                  <p class="text-xs text-slate-400" data-i18n="stat_length">
+                    Umumiy Masofa
+                  </p>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-left">
+                  <p class="text-2xl font-extrabold text-purple-400">
+                    2,500 UZS
+                  </p>
+                  <p class="text-xs text-slate-400" data-i18n="stat_price">
+                    Bir Martalik Yo'l
+                  </p>
+                </div>
+                <div class="glass-card p-4 rounded-2xl text-left">
+                  <p class="text-2xl font-extrabold text-emerald-400">270K+</p>
+                  <p class="text-xs text-slate-400" data-i18n="stat_passengers">
+                    Kunlik Yo'lovchilar
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="lg:col-span-5">
+              <div
+                class="glass-dark p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden group"
+              >
+                <img
+                  src="/imgs/image1.png"
+                  alt="Tashkent Metro"
+                  class="rounded-2xl w-full h-64 object-cover mb-6 group-hover:scale-105 transition-transform duration-500"
+                />
+                <h3
+                  class="text-xl font-bold text-white mb-2"
+                  data-i18n="hero_card_title"
+                >
+                  Toshkent Metropoliteni Live
+                </h3>
+                <p
+                  class="text-xs text-slate-300 leading-relaxed mb-4"
+                  data-i18n="hero_card_desc"
+                >
+                  Metropolitenimiz barcha 4 ta yo'nalish bo'yicha shtat rejimida
+                  va xavfsiz ishlamoqda.
+                </p>
+                <button
+                  onclick="navigateTo('route')"
+                  class="w-full py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <i class="fa-solid fa-calculator"></i>
+                  <span data-i18n="hero_card_btn">Marshrutni Hisoblash</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="border-t border-slate-800/80 pt-12">
+            <h3
+              class="text-2xl font-bold text-white mb-6 flex items-center gap-3"
+            >
+              <i class="fa-solid fa-signal text-emerald-400 text-xl"></i>
+              <span data-i18n="sec_status_title"
+                >Liniyalarning Hozirgi Ish Holati</span
+              >
+            </h3>
+            <div class="grid md:grid-cols-4 gap-4">
+              <div
+                class="glass-card p-4 rounded-2xl flex items-center justify-between"
+              >
+                <div>
+                  <h4
+                    class="font-bold text-white text-sm"
+                    data-i18n="line_chilonzor"
+                  >
+                    Chilonzor Yo'nalishi
+                  </h4>
+                  <p
+                    class="text-[11px] text-emerald-400 font-semibold"
+                    data-i18n="status_normal"
+                  >
+                    Normal (Shtat rejimida)
+                  </p>
+                </div>
+                <span
+                  class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"
+                ></span>
+              </div>
+              <div
+                class="glass-card p-4 rounded-2xl flex items-center justify-between"
+              >
+                <div>
+                  <h4
+                    class="font-bold text-white text-sm"
+                    data-i18n="line_uzbekiston"
+                  >
+                    O'zbekiston Yo'nalishi
+                  </h4>
+                  <p
+                    class="text-[11px] text-emerald-400 font-semibold"
+                    data-i18n="status_normal"
+                  >
+                    Normal (Shtat rejimida)
+                  </p>
+                </div>
+                <span
+                  class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"
+                ></span>
+              </div>
+              <div
+                class="glass-card p-4 rounded-2xl flex items-center justify-between"
+              >
+                <div>
+                  <h4
+                    class="font-bold text-white text-sm"
+                    data-i18n="line_yunusobod"
+                  >
+                    Yunusobod Yo'nalishi
+                  </h4>
+                  <p
+                    class="text-[11px] text-emerald-400 font-semibold"
+                    data-i18n="status_normal"
+                  >
+                    Normal (Shtat rejimida)
+                  </p>
+                </div>
+                <span
+                  class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"
+                ></span>
+              </div>
+              <div
+                class="glass-card p-4 rounded-2xl flex items-center justify-between"
+              >
+                <div>
+                  <h4
+                    class="font-bold text-white text-sm"
+                    data-i18n="line_halqa"
+                  >
+                    Yer Usti Halqa Yo'li
+                  </h4>
+                  <p
+                    class="text-[11px] text-emerald-400 font-semibold"
+                    data-i18n="status_normal"
+                  >
+                    Normal (Shtat rejimida)
+                  </p>
+                </div>
+                <span
+                  class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-map" class="page-section py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div class="text-center max-w-3xl mx-auto">
+            <h2
+              class="text-3xl font-extrabold text-white sm:text-4xl"
+              data-i18n="map_page_title"
+            >
+              Interaktiv Metro Xaritasi
+            </h2>
+            <p class="text-slate-400 mt-2 text-sm" data-i18n="map_page_desc">
+              Liniyalar bo'yicha filtrlash va bekatlar ustiga bosib batafsil
+              ma'lumot olish imkoniyati.
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-2 mt-6">
+              <button
+                onclick="filterLine('all')"
+                class="line-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-violet-600 text-white shadow-md transition-all"
+                data-line="all"
+                data-i18n="filter_all"
+              >
+                Barchasi
+              </button>
+              <button
+                onclick="filterLine('chilonzor')"
+                class="line-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-red-500/50 text-red-400 hover:bg-red-500/10 transition-all"
+                data-line="chilonzor"
+                data-i18n="line_chilonzor"
+              >
+                Chilonzor (Qizil)
+              </button>
+              <button
+                onclick="filterLine('uzbekiston')"
+                class="line-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-blue-500/50 text-blue-400 hover:bg-blue-500/10 transition-all"
+                data-line="uzbekiston"
+                data-i18n="line_uzbekiston"
+              >
+                O'zbekiston (Ko'k)
+              </button>
+              <button
+                onclick="filterLine('yunusobod')"
+                class="line-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 transition-all"
+                data-line="yunusobod"
+                data-i18n="line_yunusobod"
+              >
+                Yunusobod (Yashil)
+              </button>
+              <button
+                onclick="filterLine('halqa')"
+                class="line-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-amber-500/50 text-amber-400 hover:bg-amber-500/10 transition-all"
+                data-line="halqa"
+                data-i18n="line_halqa"
+              >
+                Yer Usti Halqa (Sariq)
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="glass-dark rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-x-auto"
+          >
+            <div class="min-w-[850px] flex justify-center">
+              <svg
+                id="metroSvgMap"
+                viewBox="0 0 900 600"
+                class="w-full h-auto max-w-[900px]"
+              >
+                <defs>
+                  <pattern
+                    id="grid"
+                    width="40"
+                    height="40"
+                    patternUnits="userSpaceOnUse"
+                  >
+                    <path
+                      d="M 40 0 L 0 0 0 40"
+                      fill="none"
+                      stroke="rgba(255, 255, 255, 0.05)"
+                      stroke-width="1"
+                    />
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+
+                <path
+                  id="line-chilonzor"
+                  class="line-path"
+                  d="M 100 500 L 250 380 L 450 300 L 650 200 L 800 100"
+                  fill="none"
+                  stroke="#EF4444"
+                  stroke-width="8"
+                  stroke-linecap="round"
+                />
+                <path
+                  id="line-uzbekiston"
+                  class="line-path"
+                  d="M 120 150 L 300 220 L 450 300 L 600 380 L 780 480"
+                  fill="none"
+                  stroke="#3B82F6"
+                  stroke-width="8"
+                  stroke-linecap="round"
+                />
+                <path
+                  id="line-yunusobod"
+                  class="line-path"
+                  d="M 450 80 L 450 300 L 450 520"
+                  fill="none"
+                  stroke="#10B981"
+                  stroke-width="8"
+                  stroke-linecap="round"
+                />
+                <path
+                  id="line-halqa"
+                  class="line-path"
+                  d="M 780 480 C 850 350, 850 200, 800 100"
+                  fill="none"
+                  stroke="#F59E0B"
+                  stroke-width="8"
+                  stroke-dasharray="10 6"
+                  stroke-linecap="round"
+                />
+
+                <g id="stations-chilonzor">
+                  <circle
+                    class="station-node"
+                    data-name="Olmazor"
+                    data-line="Chilonzor"
+                    data-desc="Janubiy vokzal va avtovokzal atrofidagi asosiy transport tuguni."
+                    cx="100"
+                    cy="500"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#EF4444"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="100"
+                    y="525"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Olmazor
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Chilonzor"
+                    data-line="Chilonzor"
+                    data-desc="Chilonzor tumanidagi asosiy turar-joy va savdo hududi."
+                    cx="250"
+                    cy="380"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#EF4444"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="250"
+                    y="405"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Chilonzor
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Paxtakor"
+                    data-line="Chilonzor"
+                    data-desc="O'zbekiston yo'nalishidagi Alisher Navoiy bekatiga o'tish nuqtasi."
+                    cx="450"
+                    cy="300"
+                    r="9"
+                    fill="#FFFFFF"
+                    stroke="#EF4444"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="430"
+                    y="285"
+                    font-size="12"
+                    fill="#FFFFFF"
+                    font-weight="bold"
+                  >
+                    Paxtakor (Transfer)
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Amir Temur Xiyoboni"
+                    data-line="Chilonzor"
+                    data-desc="Poytaxt markaziy xiyoboni va Yunusobod liniyasiga bog'lanish."
+                    cx="650"
+                    cy="200"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#EF4444"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="650"
+                    y="180"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    A. Temur Xiyoboni
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Buyuk Ipak Yo'li"
+                    data-line="Chilonzor"
+                    data-desc="Mirzo Ulug'bek tumani markazi va shahar chiqish yo'nalishi."
+                    cx="800"
+                    cy="100"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#EF4444"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="800"
+                    y="80"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Buyuk Ipak Yo'li
+                  </text>
+                </g>
+
+                <g id="stations-uzbekiston">
+                  <circle
+                    class="station-node"
+                    data-name="Beruniy"
+                    data-line="O'zbekiston"
+                    data-desc="Talabalar shaharchasi va Texnika universiteti yaqinida."
+                    cx="120"
+                    cy="150"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#3B82F6"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="120"
+                    y="135"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Beruniy
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Tinchlik"
+                    data-line="O'zbekiston"
+                    data-desc="Shayxontohur tumani savdo majmualari zonasi."
+                    cx="300"
+                    cy="220"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#3B82F6"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="300"
+                    y="205"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Tinchlik
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Alisher Navoiy"
+                    data-line="O'zbekiston"
+                    data-desc="Sharqona milliy bezaklarga ega eng ko'rkam bekatlardan biri."
+                    cx="450"
+                    cy="300"
+                    r="9"
+                    fill="#FFFFFF"
+                    stroke="#3B82F6"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="460"
+                    y="325"
+                    font-size="12"
+                    fill="#FFFFFF"
+                    font-weight="bold"
+                  >
+                    A. Navoiy
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Toshkent"
+                    data-line="O'zbekiston"
+                    data-desc="Markaziy Temir Yo'l Vokzali bilan to'g'ridan-to'g'ri bog'langan."
+                    cx="600"
+                    cy="380"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#3B82F6"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="600"
+                    y="405"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Toshkent Vokzal
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Do'stlik"
+                    data-line="O'zbekiston"
+                    data-desc="Yer Usti Halqa yo'nalishiga o'tish tuguni."
+                    cx="780"
+                    cy="480"
+                    r="9"
+                    fill="#FFFFFF"
+                    stroke="#3B82F6"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="780"
+                    y="505"
+                    font-size="12"
+                    fill="#FFFFFF"
+                    font-weight="bold"
+                  >
+                    Do'stlik (Transfer)
+                  </text>
+                </g>
+
+                <g id="stations-yunusobod">
+                  <circle
+                    class="station-node"
+                    data-name="Turkiston"
+                    data-line="Yunusobod"
+                    data-desc="Yunusobod shimolidagi yangi zamonaviy bekat."
+                    cx="450"
+                    cy="80"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#10B981"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="450"
+                    y="65"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Turkiston
+                  </text>
+                  <circle
+                    class="station-node"
+                    data-name="Ming O'rik"
+                    data-line="Yunusobod"
+                    data-desc="Oybek bekatiga o'tish va Yunusobod tarmog'i yakuniy bekati."
+                    cx="450"
+                    cy="520"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#10B981"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="450"
+                    y="545"
+                    font-size="11"
+                    fill="#94A3B8"
+                    text-anchor="middle"
+                    font-weight="600"
+                  >
+                    Ming O'rik
+                  </text>
+                </g>
+
+                <g id="stations-halqa">
+                  <circle
+                    class="station-node"
+                    data-name="Rohat (7-Bekat)"
+                    data-line="Yer Usti Halqa"
+                    data-desc="Rohat aylanasi yaqinida joylashgan zamonaviy estakada bekat."
+                    cx="830"
+                    cy="280"
+                    r="7"
+                    fill="#090D16"
+                    stroke="#F59E0B"
+                    stroke-width="4"
+                    onclick="openStationModal(this)"
+                  />
+                  <text
+                    x="840"
+                    y="285"
+                    font-size="10"
+                    fill="#F59E0B"
+                    font-weight="600"
+                  >
+                    Rohat (7-bekat)
+                  </text>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-lines" class="page-section py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div class="text-center sm:text-left">
+            <h2
+              class="text-3xl sm:text-4xl font-extrabold text-white"
+              data-i18n="lines_page_title"
+            >
+              Yo'nalishlar & Harakat Jadvallari
+            </h2>
+            <p class="text-slate-400 mt-2 text-sm" data-i18n="lines_page_desc">
+              Metro liniyalarining texnik ko'rsatkichlari va poyezdlar oraliq
+              vaqti
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div
+              class="glass-dark rounded-3xl p-6 relative overflow-hidden space-y-4"
+            >
+              <div class="w-full h-1.5 bg-red-500 absolute top-0 left-0"></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30"
+                    >1-Liniya</span
+                  >
+                  <h3
+                    class="text-xl font-bold text-white mt-2"
+                    data-i18n="line_chilonzor"
+                  >
+                    Chilonzor Yo'nalishi
+                  </h3>
+                </div>
+                <i class="fa-solid fa-subway text-red-500 text-2xl"></i>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Olmazor ↔ Buyuk Ipak Yo'li (12 ta bekat, 23.7 km).
+              </p>
+              <div class="space-y-2 text-xs glass-card p-4 rounded-xl">
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="peak_time"
+                    >Pik vaqtlari (07:30 - 09:30):</span
+                  >
+                  <span class="font-bold text-emerald-400">2.5 - 3 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="offpeak_time"
+                    >Kunduzgi vaqt (10:00 - 16:00):</span
+                  >
+                  <span class="font-bold text-white">4 - 5 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="evening_time"
+                    >Kechki vaqt (20:00 dan so'ng):</span
+                  >
+                  <span class="font-bold text-amber-400">7 - 10 daqiqa</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="glass-dark rounded-3xl p-6 relative overflow-hidden space-y-4"
+            >
+              <div class="w-full h-1.5 bg-blue-500 absolute top-0 left-0"></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                    >2-Liniya</span
+                  >
+                  <h3
+                    class="text-xl font-bold text-white mt-2"
+                    data-i18n="line_uzbekiston"
+                  >
+                    O'zbekiston Yo'nalishi
+                  </h3>
+                </div>
+                <i class="fa-solid fa-train text-blue-500 text-2xl"></i>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Beruniy ↔ Do'stlik (11 ta bekat, 14.3 km).
+              </p>
+              <div class="space-y-2 text-xs glass-card p-4 rounded-xl">
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="peak_time"
+                    >Pik vaqtlari (07:30 - 09:30):</span
+                  >
+                  <span class="font-bold text-emerald-400">3 - 4 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="offpeak_time"
+                    >Kunduzgi vaqt (10:00 - 16:00):</span
+                  >
+                  <span class="font-bold text-white">5 - 6 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="evening_time"
+                    >Kechki vaqt (20:00 dan so'ng):</span
+                  >
+                  <span class="font-bold text-amber-400">8 - 10 daqiqa</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="glass-dark rounded-3xl p-6 relative overflow-hidden space-y-4"
+            >
+              <div
+                class="w-full h-1.5 bg-emerald-500 absolute top-0 left-0"
+              ></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                    >3-Liniya</span
+                  >
+                  <h3
+                    class="text-xl font-bold text-white mt-2"
+                    data-i18n="line_yunusobod"
+                  >
+                    Yunusobod Yo'nalishi
+                  </h3>
+                </div>
+                <i
+                  class="fa-solid fa-train-subway text-emerald-500 text-2xl"
+                ></i>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Turkiston ↔ Ming O'rik (8 ta bekat, 10.5 km).
+              </p>
+              <div class="space-y-2 text-xs glass-card p-4 rounded-xl">
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="peak_time"
+                    >Pik vaqtlari (07:30 - 09:30):</span
+                  >
+                  <span class="font-bold text-emerald-400">4 - 5 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="offpeak_time"
+                    >Kunduzgi vaqt (10:00 - 16:00):</span
+                  >
+                  <span class="font-bold text-white">6 - 7 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="evening_time"
+                    >Kechki vaqt (20:00 dan so'ng):</span
+                  >
+                  <span class="font-bold text-amber-400">10 daqiqa</span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="glass-dark rounded-3xl p-6 relative overflow-hidden space-y-4"
+            >
+              <div
+                class="w-full h-1.5 bg-amber-500 absolute top-0 left-0"
+              ></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                    >4-Liniya</span
+                  >
+                  <h3
+                    class="text-xl font-bold text-white mt-2"
+                    data-i18n="line_halqa"
+                  >
+                    Yer Usti Halqa Yo'li
+                  </h3>
+                </div>
+                <i class="fa-solid fa-train-tram text-amber-500 text-2xl"></i>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Do'stlik-2 ↔ Qo'yliq / Sergeli (14+ bekat).
+              </p>
+              <div class="space-y-2 text-xs glass-card p-4 rounded-xl">
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="peak_time"
+                    >Pik vaqtlari (07:30 - 09:30):</span
+                  >
+                  <span class="font-bold text-emerald-400">6 - 7 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="offpeak_time"
+                    >Kunduzgi vaqt (10:00 - 16:00):</span
+                  >
+                  <span class="font-bold text-white">8 - 10 daqiqa</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span data-i18n="evening_time"
+                    >Kechki vaqt (20:00 dan so'ng):</span
+                  >
+                  <span class="font-bold text-amber-400">12 - 15 daqiqa</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-tariffs" class="page-section py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div class="text-center max-w-3xl mx-auto">
+            <h2
+              class="text-3xl font-extrabold text-white sm:text-4xl"
+              data-i18n="tariffs_page_title"
+            >
+              Tariflar & To'lov Usullari
+            </h2>
+            <p
+              class="text-slate-400 mt-2 text-sm"
+              data-i18n="tariffs_page_desc"
+            >
+              ATTO kartalari, bank kartalari hamda imtiyozli tarif rejalari
+              bilan tanishing.
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="glass-dark p-6 rounded-3xl space-y-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-xl font-bold"
+              >
+                <i class="fa-solid fa-credit-card"></i>
+              </div>
+              <h3
+                class="text-xl font-bold text-white"
+                data-i18n="tariff1_title"
+              >
+                ATTO Transport Kartasi
+              </h3>
+              <p
+                class="text-xs text-slate-300 leading-relaxed"
+                data-i18n="tariff1_desc"
+              >
+                Bir martalik yo'l haqi - 2,500 UZS.
+              </p>
+              <span
+                class="inline-block text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"
+                data-i18n="tariff1_badge"
+                >Eng Tejamkor</span
+              >
+            </div>
+
+            <div class="glass-dark p-6 rounded-3xl space-y-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-violet-600/20 text-violet-400 flex items-center justify-center text-xl font-bold"
+              >
+                <i class="fa-solid fa-wifi"></i>
+              </div>
+              <h3
+                class="text-xl font-bold text-white"
+                data-i18n="tariff2_title"
+              >
+                Bank Kartasi / NFC
+              </h3>
+              <p
+                class="text-xs text-slate-300 leading-relaxed"
+                data-i18n="tariff2_desc"
+              >
+                Uzcard, Humo, Visa, Mastercard va smartfonlar orqali kontaktsiz
+                to'lov.
+              </p>
+              <span
+                class="inline-block text-xs font-bold text-violet-400 bg-violet-500/10 px-3 py-1 rounded-full border border-violet-500/20"
+                data-i18n="tariff2_badge"
+                >Tezkor</span
+              >
+            </div>
+
+            <div class="glass-dark p-6 rounded-3xl space-y-4">
+              <div
+                class="w-12 h-12 rounded-2xl bg-amber-600/20 text-amber-400 flex items-center justify-center text-xl font-bold"
+              >
+                <i class="fa-solid fa-graduation-cap"></i>
+              </div>
+              <h3
+                class="text-xl font-bold text-white"
+                data-i18n="tariff3_title"
+              >
+                Imtiyozli Kartalar
+              </h3>
+              <p
+                class="text-xs text-slate-300 leading-relaxed"
+                data-i18n="tariff3_desc"
+              >
+                Talabalar, o'quvchilar va nafaqaxo'rlar uchun maxsus imtiyozli
+                paketlar.
+              </p>
+              <span
+                class="inline-block text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20"
+                data-i18n="tariff3_badge"
+                >Imtiyozli</span
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-route" class="page-section py-12">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div class="text-center">
+            <h2
+              class="text-3xl font-extrabold text-white sm:text-4xl"
+              data-i18n="route_page_title"
+            >
+              Marshrut Rejalashtirgich
+            </h2>
+            <p class="text-slate-400 mt-2 text-sm" data-i18n="route_page_desc">
+              Boshlang'ich va yakuniy bekatni tanlang.
+            </p>
+          </div>
+
+          <div class="glass-dark p-6 sm:p-10 rounded-3xl shadow-2xl space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase"
+                  data-i18n="route_from"
+                  >Qayerdan (Boshlang'ich Bekat)</label
+                >
+                <div class="relative">
+                  <i
+                    class="fa-solid fa-location-dot absolute left-4 top-3.5 text-violet-400"
+                  ></i>
+                  <select
+                    id="routeStart"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 appearance-none"
+                  >
+                    <option value="">Bekatni tanlang...</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label
+                  class="block text-xs font-semibold text-slate-300 mb-1.5 uppercase"
+                  data-i18n="route_to"
+                  >Qayerga (Yakuniy Bekat)</label
+                >
+                <div class="relative">
+                  <i
+                    class="fa-solid fa-flag-checkered absolute left-4 top-3.5 text-indigo-400"
+                  ></i>
+                  <select
+                    id="routeEnd"
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-11 pr-4 text-sm text-white focus:outline-none focus:border-violet-500 appearance-none"
+                  >
+                    <option value="">Bekatni tanlang...</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onclick="calculateFullRoute()"
+              class="w-full py-4 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2"
+            >
+              <i class="fa-solid fa-route"></i>
+              <span data-i18n="route_btn_calc">Marshrutni Hisoblash</span>
+            </button>
+
+            <div
+              id="fullRouteResult"
+              class="hidden pt-6 border-t border-slate-800 space-y-6"
+            >
+              <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="glass-card p-4 rounded-2xl">
+                  <p
+                    class="text-xs uppercase text-slate-400 font-semibold"
+                    data-i18n="res_time"
+                  >
+                    Taxminiy Vaqt
+                  </p>
+                  <p
+                    id="fullResTime"
+                    class="text-xl font-black text-violet-400"
+                  >
+                    16 daqiqa
+                  </p>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                  <p
+                    class="text-xs uppercase text-slate-400 font-semibold"
+                    data-i18n="res_stops"
+                  >
+                    Bekatlar Soni
+                  </p>
+                  <p
+                    id="fullResStops"
+                    class="text-xl font-black text-indigo-400"
+                  >
+                    6 ta
+                  </p>
+                </div>
+                <div class="glass-card p-4 rounded-2xl">
+                  <p
+                    class="text-xs uppercase text-slate-400 font-semibold"
+                    data-i18n="res_price"
+                  >
+                    To'lov Narxi
+                  </p>
+                  <p
+                    id="fullResPrice"
+                    class="text-xl font-black text-purple-400"
+                  >
+                    2,000 UZS
+                  </p>
+                </div>
+              </div>
+
+              <div class="glass-card p-5 rounded-2xl space-y-3">
+                <h4
+                  class="font-bold text-white text-sm flex items-center gap-2"
+                >
+                  <i class="fa-solid fa-list-check text-violet-400"></i>
+                  <span data-i18n="route_details_title"
+                    >Marshrut Tafsilotlari</span
+                  >
+                </h4>
+                <p
+                  id="fullRouteTransferInfo"
+                  class="text-xs text-slate-300 leading-relaxed"
+                ></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="stationModal"
+      class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="glass-dark rounded-3xl max-w-md w-full p-6 shadow-2xl relative animate-fadeIn"
+      >
+        <button
+          onclick="closeModal()"
+          class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-sm transition-colors"
+        >
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            id="modalBadge"
+            class="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center text-violet-400 text-lg"
+          >
+            <i class="fa-solid fa-subway"></i>
+          </div>
+          <div>
+            <h3 id="modalStationName" class="text-xl font-bold text-white">
+              Bekat Nomi
+            </h3>
+            <span
+              id="modalLineName"
+              class="text-xs font-semibold text-violet-400"
+              >Chilonzor Yo'nalishi</span
+            >
+          </div>
+        </div>
+        <p
+          id="modalDescription"
+          class="text-xs text-slate-300 leading-relaxed mb-6"
+        >
+          Bekat haqidagi batafsil tavsif bu yerda ko'rinadi.
+        </p>
+        <button
+          onclick="closeModal()"
+          class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-violet-600 text-white font-semibold text-xs transition-colors"
+        >
+          Yopish
+        </button>
+      </div>
+    </div>
+
+    <footer
+      class="bg-slate-950 border-t border-slate-800 py-8 text-center text-xs text-slate-500"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-2">
+        <p>
+          &copy; 2026 Toshkent Metrosi Rasmiy Interaktiv Portali. Barcha
+          huquqlar himoyalangan.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      const themeConfigs = {
+        violet: {
+          bg: "#070a12",
+          border: "rgba(139, 92, 246, 0.25)",
+          glassBg: "rgba(15, 23, 42, 0.78)",
+          glassDark: "rgba(7, 10, 18, 0.90)",
+          accent: "#7c3aed",
+          pattern: "rgba(139, 92, 246, 0.12)",
+        },
+        cyberpunk: {
+          bg: "#0d021a",
+          border: "rgba(236, 72, 153, 0.3)",
+          glassBg: "rgba(26, 10, 42, 0.82)",
+          glassDark: "rgba(13, 2, 26, 0.94)",
+          accent: "#ec4899",
+          pattern: "rgba(236, 72, 153, 0.15)",
+        },
+        amber: {
+          bg: "#0d0a03",
+          border: "rgba(245, 158, 11, 0.3)",
+          glassBg: "rgba(30, 22, 8, 0.82)",
+          glassDark: "rgba(13, 10, 3, 0.94)",
+          accent: "#f59e0b",
+          pattern: "rgba(245, 158, 11, 0.15)",
+        },
+        ice: {
+          bg: "#020f18",
+          border: "rgba(14, 165, 233, 0.3)",
+          glassBg: "rgba(8, 32, 50, 0.82)",
+          glassDark: "rgba(2, 15, 24, 0.94)",
+          accent: "#0ea5e9",
+          pattern: "rgba(14, 165, 233, 0.15)",
+        },
+        ruby: {
+          bg: "#120305",
+          border: "rgba(239, 68, 68, 0.3)",
+          glassBg: "rgba(35, 10, 15, 0.82)",
+          glassDark: "rgba(18, 3, 5, 0.94)",
+          accent: "#ef4444",
+          pattern: "rgba(239, 68, 68, 0.15)",
+        },
+        obsidian: {
+          bg: "#050811",
+          border: "rgba(59, 130, 246, 0.25)",
+          glassBg: "rgba(11, 19, 43, 0.80)",
+          glassDark: "rgba(5, 8, 17, 0.92)",
+          accent: "#2563eb",
+          pattern: "rgba(59, 130, 246, 0.12)",
+        },
+        emerald: {
+          bg: "#040d0a",
+          border: "rgba(16, 185, 129, 0.25)",
+          glassBg: "rgba(6, 30, 22, 0.80)",
+          glassDark: "rgba(4, 13, 10, 0.92)",
+          accent: "#059669",
+          pattern: "rgba(16, 185, 129, 0.12)",
+        },
+        cyan: {
+          bg: "#030c14",
+          border: "rgba(6, 182, 212, 0.25)",
+          glassBg: "rgba(8, 28, 44, 0.80)",
+          glassDark: "rgba(3, 12, 20, 0.92)",
+          accent: "#0891b2",
+          pattern: "rgba(6, 182, 212, 0.12)",
+        },
+        purple: {
+          bg: "#0a0512",
+          border: "rgba(168, 85, 247, 0.25)",
+          glassBg: "rgba(24, 12, 40, 0.80)",
+          glassDark: "rgba(10, 5, 18, 0.92)",
+          accent: "#9333ea",
+          pattern: "rgba(168, 85, 247, 0.12)",
+        },
+      };
+
+      function changeTheme(themeKey) {
+        const theme = themeConfigs[themeKey] || themeConfigs.violet;
+        const root = document.documentElement;
+        root.style.setProperty("--bg-color", theme.bg);
+        root.style.setProperty("--border-color", theme.border);
+        root.style.setProperty("--glass-bg", theme.glassBg);
+        root.style.setProperty("--glass-dark", theme.glassDark);
+        root.style.setProperty("--accent-color", theme.accent);
+        root.style.setProperty("--pattern-color", theme.pattern);
+      }
+
+      const translations = {
+        uz: {
+          portal_subtitle: "Rasmiy Portal",
+          nav_home: "Bosh sahifa",
+          nav_map: "Interaktiv Xarita",
+          nav_lines: "Yo'nalishlar & Jadval",
+          nav_tariffs: "Tariflar & To'lov",
+          nav_route: "Marshrut Hisoblagich",
+          btn_plan_route: "Marshrut",
+          hero_badge: "Tezkor, Xavfsiz va Qulay Transport",
+          hero_title: "Poytaxtimizning Asosiy Arteriyasi",
+          hero_desc:
+            "Yer osti va yer usti halqa metro tarmoqlari bo'ylab qulay sayohat qiling.",
+          stat_stations: "Bekatlar Soni",
+          stat_length: "Umumiy Masofa",
+          stat_price: "Bir Martalik Yo'l",
+          stat_passengers: "Kunlik Yo'lovchilar",
+          hero_card_title: "Toshkent Metropoliteni Live",
+          hero_card_desc:
+            "Metropolitenimiz barcha 4 ta yo'nalish bo'yicha shtat rejimida va xavfsiz ishlamoqda.",
+          hero_card_btn: "Marshrutni Hisoblash",
+          sec_status_title: "Liniyalarning Hozirgi Ish Holati",
+          line_chilonzor: "Chilonzor Yo'nalishi",
+          line_uzbekiston: "O'zbekiston Yo'nalishi",
+          line_yunusobod: "Yunusobod Yo'nalishi",
+          line_halqa: "Yer Usti Halqa Yo'li",
+          status_normal: "Normal (Shtat rejimida)",
+          adv_title: "Nima Uchun Toshkent Metrosini Tanlashadi?",
+          adv1_title: "Xavfsizlik & Nazorat",
+          adv1_desc:
+            "Barcha bekatlar va poyezdlar zamonaviy kuzatuv kameralari va xavfsizlik xodimlari bilan ta'minlangan.",
+          adv2_title: "Tez va Qulay To'lov",
+          adv2_desc:
+            "ATTO, bank kartalari, NFC va QR-kod yordamida turniketlardan bir sekundda o'ting.",
+          adv3_title: "Iqlim Nazorati",
+          adv3_desc:
+            "Yangi poyezdlar va bekatlar yozda salqin, qishda esa issiq micro-climate tizimiga ega.",
+          map_page_title: "Interaktiv Metro Xaritasi",
+          map_page_desc:
+            "Liniyalar bo'yicha filtrlash va bekatlar ustiga bosib batafsil ma'lumot olish imkoniyati.",
+          filter_all: "Barchasi",
+          lines_page_title: "Yo'nalishlar & Harakat Jadvallari",
+          lines_page_desc:
+            "Metro liniyalarining texnik ko'rsatkichlari va poyezdlar oraliq vaqti",
+          peak_time: "Pik vaqtlari (07:30 - 09:30):",
+          offpeak_time: "Kunduzgi vaqt (10:00 - 16:00):",
+          evening_time: "Kechki vaqt (20:00 dan so'ng):",
+          tariffs_page_title: "Tariflar & To'lov Usullari",
+          tariffs_page_desc:
+            "ATTO kartalari, bank kartalari hamda imtiyozli tarif rejalari bilan tanishing.",
+          tariff1_title: "ATTO Transport Kartasi",
+          tariff1_desc: "Bir martalik yo'l haqi - 1,700 UZS.",
+          tariff1_badge: "Eng Tejamkor",
+          tariff2_title: "Bank Kartasi / NFC",
+          tariff2_desc:
+            "Uzcard, Humo, Visa, Mastercard va smartfonlar orqali kontaktsiz to'lov.",
+          tariff2_badge: "Tezkor",
+          tariff3_title: "Imtiyozli Kartalar",
+          tariff3_desc:
+            "Talabalar, o'quvchilar va nafaqaxo'rlar uchun maxsus imtiyozli paketlar.",
+          tariff3_badge: "Imtiyozli",
+          route_page_title: "Marshrut Rejalashtirgich",
+          route_page_desc: "Boshlang'ich va yakuniy bekatni tanlang.",
+          route_from: "Qayerdan (Boshlang'ich Bekat)",
+          route_to: "Qayerga (Yakuniy Bekat)",
+          route_btn_calc: "Marshrutni Hisoblash",
+          res_time: "Taxminiy Vaqt",
+          res_stops: "Bekatlar Soni",
+          res_price: "To'lov Narxi",
+          route_details_title: "Marshrut Tafsilotlari",
+        },
+        ru: {
+          portal_subtitle: "Официальный Портал",
+          nav_home: "Главная",
+          nav_map: "Интерактивная Карта",
+          nav_lines: "Линии и Расписание",
+          nav_tariffs: "Тарифы и Оплата",
+          nav_route: "Калькулятор Маршрута",
+          btn_plan_route: "Маршрут",
+          hero_badge: "Быстрый, Безопасный и Удобный Транспорт",
+          hero_title: "Главная Артерия Нашей Столицы",
+          hero_desc: "Путешествуйте с комфортом по линиям метро Ташкента.",
+          stat_stations: "Количество Станций",
+          stat_length: "Общая Протяженность",
+          stat_price: "Разовая Поездка",
+          stat_passengers: "Пассажиров в День",
+          hero_card_title: "Ташкентский Метрополитен Live",
+          hero_card_desc: "Метрополитен работает безопасно и в штатном режиме.",
+          hero_card_btn: "Рассчитать Маршрут",
+          sec_status_title: "Текущий Статус Линий",
+          line_chilonzor: "Чиланзарская Линия",
+          line_uzbekiston: "Узбекистанская Линия",
+          line_yunusobod: "Юнусабадская Линия",
+          line_halqa: "Надземная Кольцевая",
+          status_normal: "Норма (В штатном режиме)",
+          adv_title: "Почему Выбирают Ташкентское Метро?",
+          adv1_title: "Безопасность и Контроль",
+          adv1_desc: "Все станции и поезда оснащены камерами и охраной.",
+          adv2_title: "Быстрая Оплата",
+          adv2_desc: "Проходите через турникеты с помощью ATTO, карт и NFC.",
+          adv3_title: "Климат-Контроль",
+          adv3_desc: "Новые поезда оснащены системой микроклимата.",
+          map_page_title: "Интерактивная Карта Метро",
+          map_page_desc:
+            "Фильтрация по линиям и подробная информация о станциях.",
+          filter_all: "Все Линии",
+          lines_page_title: "Линии и Расписание Движения",
+          lines_page_desc: "Технические показатели линий метро и интервалы",
+          peak_time: "Часы пик (07:30 - 09:30):",
+          offpeak_time: "Дневное время (10:00 - 16:00):",
+          evening_time: "Вечернее время (после 20:00):",
+          tariffs_page_title: "Тарифы и Способы Оплаты",
+          tariffs_page_desc: "Ознакомьтесь с картами ATTO и тарифными планами.",
+          tariff1_title: "Транспортная Карта ATTO",
+          tariff1_desc: "Разовая поездка - 1,700 UZS.",
+          tariff1_badge: "Выгодно",
+          tariff2_title: "Банковская Карта / NFC",
+          tariff2_desc: "Бесконтактная оплата картами и смартфонами.",
+          tariff2_badge: "Быстро",
+          tariff3_title: "Льготные Карты",
+          tariff3_desc:
+            "Специальные месячные тарифы для студентов и пенсионеров.",
+          tariff3_badge: "Льготный",
+          route_page_title: "Планировщик Маршрута",
+          route_page_desc: "Выберите начальную и конечную станции.",
+          route_from: "Откуда (Начальная Станция)",
+          route_to: "Куда (Конечная Станция)",
+          route_btn_calc: "Рассчитать Маршрут",
+          res_time: "Примерное Время",
+          res_stops: "Количество Станций",
+          res_price: "Стоимость Проезда",
+          route_details_title: "Детали Маршрута",
+        },
+        en: {
+          portal_subtitle: "Official Portal",
+          nav_home: "Home",
+          nav_map: "Interactive Map",
+          nav_lines: "Lines & Schedule",
+          nav_tariffs: "Tariffs & Payment",
+          nav_route: "Route Calculator",
+          btn_plan_route: "Plan Route",
+          hero_badge: "Fast, Safe & Convenient Transport",
+          hero_title: "The Main Artery of Tashkent",
+          hero_desc: "Travel comfortably across Tashkent's metro lines.",
+          stat_stations: "Number of Stations",
+          stat_length: "Total Length",
+          stat_price: "Single Ride Fare",
+          stat_passengers: "Daily Passengers",
+          hero_card_title: "Tashkent Metro Live",
+          hero_card_desc:
+            "Our metro system operates safely across all 4 lines.",
+          hero_card_btn: "Calculate Route",
+          sec_status_title: "Current Line Operational Status",
+          line_chilonzor: "Chilonzor Line",
+          line_uzbekiston: "Uzbekiston Line",
+          line_yunusobod: "Yunusobod Line",
+          line_halqa: "Elevated Ring Line",
+          status_normal: "Normal (On Schedule)",
+          adv_title: "Why Choose Tashkent Metro?",
+          adv1_title: "Safety & Security",
+          adv1_desc: "All stations and trains are monitored with CCTV.",
+          adv2_title: "Fast Payments",
+          adv2_desc: "Pass turnstiles using ATTO, bank cards, or NFC.",
+          adv3_title: "Climate Control",
+          adv3_desc: "New trains feature climate control systems.",
+          map_page_title: "Interactive Metro Map",
+          map_page_desc: "Filter by lines and click on stations for info.",
+          filter_all: "All Lines",
+          lines_page_title: "Lines & Timetables",
+          lines_page_desc:
+            "Technical specifications of metro lines and train intervals",
+          peak_time: "Peak hours (07:30 - 09:30):",
+          offpeak_time: "Daytime (10:00 - 16:00):",
+          evening_time: "Evening (After 20:00):",
+          tariffs_page_title: "Tariffs & Payment Methods",
+          tariffs_page_desc: "Explore ATTO transport cards and plans.",
+          tariff1_title: "ATTO Transport Card",
+          tariff1_desc: "Single ride - 1,700 UZS.",
+          tariff1_badge: "Best Value",
+          tariff2_title: "Bank Card / NFC",
+          tariff2_desc: "Contactless payment via bank cards & smartphones.",
+          tariff2_badge: "Fast",
+          tariff3_title: "Discounted Cards",
+          tariff3_desc: "Special packages for students and pensioners.",
+          tariff3_badge: "Discounted",
+          route_page_title: "Route Planner",
+          route_page_desc: "Select start and destination stations.",
+          route_from: "From (Start Station)",
+          route_to: "To (Destination Station)",
+          route_btn_calc: "Calculate Route",
+          res_time: "Estimated Time",
+          res_stops: "Stations Count",
+          res_price: "Total Fare",
+          route_details_title: "Route Details",
+        },
+      };
+
+      let currentLang = "uz";
+
+      const stationsData = [
+        { name: "Olmazor", line: "Chilonzor" },
+        { name: "Chilonzor", line: "Chilonzor" },
+        { name: "Paxtakor", line: "Chilonzor" },
+        { name: "Amir Temur Xiyoboni", line: "Chilonzor" },
+        { name: "Buyuk Ipak Yo'li", line: "Chilonzor" },
+        { name: "Beruniy", line: "O'zbekiston" },
+        { name: "Tinchlik", line: "O'zbekiston" },
+        { name: "Alisher Navoiy", line: "O'zbekiston" },
+        { name: "Toshkent", line: "O'zbekiston" },
+        { name: "Do'stlik", line: "O'zbekiston" },
+        { name: "Turkiston", line: "Yunusobod" },
+        { name: "Ming O'rik", line: "Yunusobod" },
+        { name: "Rohat (7-Bekat)", line: "Yer Usti Halqa" },
+      ];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        populateAllDropdowns();
+      });
+
+      function changeLanguage(lang) {
+        currentLang = lang;
+        document.querySelectorAll(".lang-btn").forEach((btn) => {
+          btn.classList.remove("bg-violet-600", "text-white");
+          btn.classList.add("text-slate-400");
+        });
+        const activeBtn = document.getElementById(`lang-${lang}`);
+        if (activeBtn) {
+          activeBtn.classList.add("bg-violet-600", "text-white");
+          activeBtn.classList.remove("text-slate-400");
+        }
+
+        document.querySelectorAll("[data-i18n]").forEach((elem) => {
+          const key = elem.getAttribute("data-i18n");
+          if (translations[lang] && translations[lang][key]) {
+            elem.innerText = translations[lang][key];
+          }
+        });
+      }
+
+      function populateAllDropdowns() {
+        const selects = [
+          document.getElementById("routeStart"),
+          document.getElementById("routeEnd"),
+        ];
+
+        selects.forEach((selectElem) => {
+          if (!selectElem) return;
+          stationsData.forEach((st) => {
+            const opt = document.createElement("option");
+            opt.value = st.name;
+            opt.innerText = `${st.name} (${st.line})`;
+            selectElem.appendChild(opt);
+          });
+        });
+      }
+
+      function navigateTo(pageId) {
+        document
+          .querySelectorAll(".page-section")
+          .forEach((sec) => sec.classList.remove("active"));
+        document.getElementById(`page-${pageId}`).classList.add("active");
+
+        document.querySelectorAll(".nav-btn").forEach((btn) => {
+          if (btn.getAttribute("data-page") === pageId) {
+            btn.classList.add("text-violet-400", "font-semibold");
+          } else {
+            btn.classList.remove("text-violet-400", "font-semibold");
+          }
+        });
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function toggleMobileMenu() {
+        document.getElementById("mobileMenu").classList.toggle("hidden");
+      }
+
+      function filterLine(lineKey) {
+        document.querySelectorAll(".line-filter-btn").forEach((btn) => {
+          btn.classList.remove("bg-violet-600", "text-white");
+          btn.classList.add("bg-slate-900");
+        });
+
+        event.currentTarget.classList.remove("bg-slate-900");
+        event.currentTarget.classList.add("bg-violet-600", "text-white");
+
+        const lines = ["chilonzor", "uzbekiston", "yunusobod", "halqa"];
+        lines.forEach((l) => {
+          const path = document.getElementById(`line-${l}`);
+          const group = document.getElementById(`stations-${l}`);
+          if (lineKey === "all" || lineKey === l) {
+            if (path) path.style.opacity = "1";
+            if (group) group.style.opacity = "1";
+          } else {
+            if (path) path.style.opacity = "0.15";
+            if (group) group.style.opacity = "0.15";
+          }
+        });
+      }
+
+      function calculateFullRoute() {
+        const start = document.getElementById("routeStart").value;
+        const end = document.getElementById("routeEnd").value;
+        const resBox = document.getElementById("fullRouteResult");
+
+        if (!start || !end) {
+          alert(
+            currentLang === "uz"
+              ? "Iltimos, bekatlarni tanlang!"
+              : "Please select stations!",
+          );
+          return;
+        }
+
+        if (start === end) {
+          alert(
+            currentLang === "uz"
+              ? "Boshlang'ich va yakuniy bekat bir xil bo'la olmaydi!"
+              : "Start and end stations must be different!",
+          );
+          return;
+        }
+
+        const st1 = stationsData.find((s) => s.name === start);
+        const st2 = stationsData.find((s) => s.name === end);
+
+        resBox.classList.remove("hidden");
+        document.getElementById("fullResTime").innerText = "14 - 18 daq";
+        document.getElementById("fullResStops").innerText = "6 ta";
+        document.getElementById("fullResPrice").innerText = "2,000 UZS";
+
+        const info = document.getElementById("fullRouteTransferInfo");
+        if (st1.line !== st2.line) {
+          info.innerText = `Tavsiya etiladi: ${st1.name} (${st1.line}) bekatidan Paxtakor/Alisher Navoiy transfer tuguniga boring, u yerdan ${st2.line} liniyasiga o'tib ${st2.name} bekatiga yetasiz.`;
+        } else {
+          info.innerText = `To'g'ridan-to'g me'yoriy yo'nalish. ${st1.line} liniyasi bo'ylab hech qanday almashtirishlarsiz harakatlanasiz.`;
+        }
+      }
+
+      function openStationModal(element) {
+        const name = element.getAttribute("data-name");
+        const line = element.getAttribute("data-line");
+        const desc = element.getAttribute("data-desc");
+
+        document.getElementById("modalStationName").innerText = name;
+        document.getElementById("modalLineName").innerText =
+          `${line} Yo'nalishi`;
+        document.getElementById("modalDescription").innerText = desc;
+
+        document.getElementById("stationModal").classList.remove("hidden");
+      }
+
+      function closeModal() {
+        document.getElementById("stationModal").classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>
